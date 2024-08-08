@@ -5,17 +5,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Annotated
 from visionlib.pipeline.settings import LogLevel, YamlConfigSettingsSource
 
+class Reid_config(BaseModel):
+    reid_size_test: list
+    reid_model_path: str
 
 class RedisConfig(BaseModel):
     host: str = 'localhost'
     port: Annotated[int, Field(ge=1, le=65536)] = 6379
-    stream_id: str = 'stream1'
-    input_stream_prefix: str = 'objecttracker'
-    output_stream_prefix: str = 'mystage'
+    stream_id: str
+    input_stream_prefix: str = 'objectdetector'
+    output_stream_prefix: str = 'featureextractor'
 
-class MyStageConfig(BaseSettings):
+class FeatureExtrator(BaseSettings):
     log_level: LogLevel = LogLevel.WARNING
-    redis: RedisConfig = RedisConfig()
+    redis: RedisConfig
+    backbone: str
+    reid_config:Reid_config
     prometheus_port: Annotated[int, Field(ge=1024, le=65536)] = 8000
 
     model_config = SettingsConfigDict(env_nested_delimiter='__')

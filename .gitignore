@@ -4,6 +4,7 @@ __pycache__
 .demo_output
 cache
 *.pt
+*.pth
 .vscode
 *.yaml
 !settings.template.yaml

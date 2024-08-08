@@ -6,8 +6,8 @@ from prometheus_client import Counter, Histogram, start_http_server
 from visionlib.pipeline.consumer import RedisConsumer
 from visionlib.pipeline.publisher import RedisPublisher
 
-from .config import MyStageConfig
-from .mystage import MyStage
+from .config import FeatureExtrator
+from .extractor import Extractor
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def run_stage():
     signal.signal(signal.SIGINT, sig_handler)
 
     # Load config from settings.yaml / env vars
-    CONFIG = MyStageConfig()
+    CONFIG = FeatureExtrator()
 
     logger.setLevel(CONFIG.log_level.value)
 
@@ -39,7 +39,7 @@ def run_stage():
 
     logger.info(f'Starting geo mapper stage. Config: {CONFIG.model_dump_json(indent=2)}')
 
-    my_stage = MyStage(CONFIG)
+    extractor = Extractor(CONFIG)
 
     consume = RedisConsumer(CONFIG.redis.host, CONFIG.redis.port, 
                             stream_keys=[f'{CONFIG.redis.input_stream_prefix}:{CONFIG.redis.stream_id}'])
@@ -57,7 +57,7 @@ def run_stage():
 
             FRAME_COUNTER.inc()
 
-            output_proto_data = my_stage.get(proto_data)
+            output_proto_data = extractor.get(proto_data)
 
             if output_proto_data is None:
                 continue
